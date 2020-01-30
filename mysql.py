@@ -2,7 +2,7 @@ import pymysql.cursors, pprint
 
 class DatabaseManager(object):
     def __init__(self, username, password, host, database):
-        charset = 'utf8mb4'
+        charset = "utf8mb4"
         self.pp = pprint.PrettyPrinter(indent=1)
         try:
             self.mysql_connection = pymysql.connect(host = host,
@@ -10,31 +10,29 @@ class DatabaseManager(object):
                                                     password = password,
                                                     db = database,
                                                     charset = charset,
-                                                    cursorclass = pymysql.cursors.DictCurs
-or)
+                                                    cursorclass = pymysql.cursors.DictCursor)
             self.cursor = self.mysql_connection.cursor()
         except Exception as e:
-            print("## Attempt to connect to MySQL has produced the following error:", e, "
-##")
+            print("## Attempt to connect to MySQL has produced the following error:", e, "##")
 
 
     def list_databases(self):
         databases = []
-        sql_statement = 'SHOW DATABASES'
+        sql_statement = "SHOW DATABASES"
         self.execute_sql(sql_statement)
         [databases.append(db) for db in self.cursor]
         return self.pp.pprint(databases)
 
 
     def use_database(self, database):
-        sql_statement = 'USE %s' % database
+        sql_statement = "USE %s" % database
         self.execute_sql(sql_statement)
 
 
     def show_tables(self, database):
         self.use_database(database)
         tables = []
-        sql_statement = 'SHOW tables'
+        sql_statement = "SHOW tables"
         self.execute_sql(sql_statement)
         [tables.append(table) for table in self.cursor]
         return self.pp.pprint(tables)
@@ -42,13 +40,19 @@ or)
 
     def describe_table(self, database, table):
         self.use_database(database)
-        sql_statement = 'DESC %s' % table
+        sql_statement = "DESC %s" % table
         self.execute_sql(sql_statement)
         return self.pp.pprint(self.cursor.fetchall())
 
 
+    def delete_table(self, database, table):
+        self.use_database(database)
+        sql_statement = "DROP TABLE %s" % table
+        self.execute_sql(sql_statement)
+
+
     def create_database(self, db_name):
-        sql_statement = 'CREATE DATABASE %s' % db_name
+        sql_statement = "CREATE DATABASE %s" % db_name
         self.execute_sql(sql_statement)
 
 
@@ -61,8 +65,8 @@ or)
 
 
     def commit_changes(self):
-        self.cursor.commit()
+        self.mysql_connection.commit()
 
 
     def close_connection(self):
-        self.cursor.close()
+        self.mysql_connection.close()
